@@ -9,6 +9,16 @@ jobs:
   check-releases:
     runs-on: ubuntu-latest
     steps:
+      # 1. Vorherige Versionen aus dem GitHub Cache laden
+      - name: Restore version cache
+        id: cache-versions
+        uses: actions/cache@v4
+        with:
+          path: .versions
+          key: homelab-versions-${{ github.run_id }}
+          restore-keys: |
+            homelab-versions-
+
       - name: Fetch Paperless-ngx Version
         id: paperless
         continue-on-error: true
@@ -108,6 +118,40 @@ jobs:
           V=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
+      # 2. Logik zur Ermittlung des alten Zustands und Kennzeichnung des Versionssprungs
+      - name: Compare versions
+        id: compare
+        run: |
+          mkdir -p .versions
+          touch .versions/old.txt
+          
+          check_diff() {
+            local name=$1
+            local current=$2
+            local old=$(grep "^${name}:" .versions/old.txt | cut -d':' -f2)
+            
+            if [ -n "$old" ] && [ "$old" != "$current" ] && [ "$current" != "Fehler" ] && [ "$old" != "Fehler" ]; then
+              echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
+            else
+              echo "${name}_text=" >> $GITHUB_OUTPUT
+            fi
+            echo "${name}:${current}" >> .versions/new.txt
+          }
+          
+          check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
+          check_diff "authelia" "${{ steps.authelia.outputs.v || 'Fehler' }}"
+          check_diff "ollama" "${{ steps.ollama.outputs.v || 'Fehler' }}"
+          check_diff "adguard" "${{ steps.adguard.outputs.v || 'Fehler' }}"
+          check_diff "beszel" "${{ steps.beszel.outputs.v || 'Fehler' }}"
+          check_diff "dockge" "${{ steps.dockge.outputs.v || 'Fehler' }}"
+          check_diff "filebrowser" "${{ steps.filebrowser.outputs.v || 'Fehler' }}"
+          check_diff "jellyfin" "${{ steps.jellyfin.outputs.v || 'Fehler' }}"
+          check_diff "npm" "${{ steps.npm.outputs.v || 'Fehler' }}"
+          check_diff "uptime" "${{ steps.uptime.outputs.v || 'Fehler' }}"
+          check_diff "vaultwarden" "${{ steps.vaultwarden.outputs.v || 'Fehler' }}"
+          
+          mv .versions/new.txt .versions/old.txt
+
       - name: Send Telegram Notification
         uses: appleboy/telegram-action@v1.1.1
         with:
@@ -117,16 +161,16 @@ jobs:
           message: |
             🔍 *Aktuelle Homelab Versionen:*
             
-            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`
-            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`
-            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`
-            🛡️ *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`
-            📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`
-            🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`
-            📂 *Filebrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`
-            🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`
-            🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`
-            📈 *Uptime-Kuma:* `${{ steps.uptime.outputs.v || 'Fehler' }}`
-            🔑 *Vaultwarden:* `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`
+            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
+            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
+            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
+            🛡️ *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
+            📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.beszel_text }}
+            🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.dockge_text }}
+            📂 *Filebrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
+            🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.jellyfin_text }}
+            🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.npm_text }}
+            📈 *Uptime-Kuma:* `${{ steps.uptime.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.uptime_text }}
+            🔑 *Vaultwarden:* `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.vaultwarden_text }}
             
             _Das System prüft alle 24 Stunden auf Updates._
