@@ -11,77 +11,99 @@ jobs:
     steps:
       - name: Fetch Paperless-ngx Version
         id: paperless
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/paperless-ngx/paperless-ngx/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Authelia Version
         id: authelia
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/authelia/authelia/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Ollama Version
         id: ollama
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/ollama/ollama/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch AdGuard Home Version
         id: adguard
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/AdguardTeam/AdGuardHome/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Beszel Version
         id: beszel
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/henrygd/beszel/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Dockge Version
         id: dockge
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/louislam/dockge/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Filebrowser Version
         id: filebrowser
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/filebrowser/filebrowser/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Jellyfin Version
         id: jellyfin
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/jellyfin/jellyfin/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Nginx Proxy Manager Version
         id: npm
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/NginxProxyManager/nginx-proxy-manager/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Uptime Kuma Version
         id: uptime
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/louislam/uptime-kuma/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Vaultwarden Version
         id: vaultwarden
-        env: { GH_TOKEN: ${{ github.token }} }
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
@@ -95,16 +117,16 @@ jobs:
           message: |
             🔍 **Aktuelle Homelab Versionen:**
             
-            📄 **Paperless-ngx:** `${{ steps.paperless.outputs.v }}`
-            🔒 **Authelia:** `${{ steps.authelia.outputs.v }}`
-            🧠 **Ollama:** `${{ steps.ollama.outputs.v }}`
-            🛡️ **AdGuard Home:** `${{ steps.adguard.outputs.v }}`
-            📊 **Beszel:** `${{ steps.beszel.outputs.v }}`
-            🐳 **Dockge:** `${{ steps.dockge.outputs.v }}`
-            📂 **Filebrowser:** `${{ steps.filebrowser.outputs.v }}`
-            🎬 **Jellyfin:** `${{ steps.jellyfin.outputs.v }}`
-            🌐 **Nginx Proxy Manager:** `${{ steps.npm.outputs.v }}`
-            📈 **Uptime-Kuma:** `${{ steps.uptime.outputs.v }}`
-            🔑 **Vaultwarden:** `${{ steps.vaultwarden.outputs.v }}`
+            📄 **Paperless-ngx:** `${{ steps.paperless.outputs.v || 'Fehler' }}`
+            🔒 **Authelia:** `${{ steps.authelia.outputs.v || 'Fehler' }}`
+            🧠 **Ollama:** `${{ steps.ollama.outputs.v || 'Fehler' }}`
+            🛡️ **AdGuard Home:** `${{ steps.adguard.outputs.v || 'Fehler' }}`
+            📊 **Beszel:** `${{ steps.beszel.outputs.v || 'Fehler' }}`
+            🐳 **Dockge:** `${{ steps.dockge.outputs.v || 'Fehler' }}`
+            📂 **Filebrowser:** `${{ steps.filebrowser.outputs.v || 'Fehler' }}`
+            🎬 **Jellyfin:** `${{ steps.jellyfin.outputs.v || 'Fehler' }}`
+            🌐 **Nginx Proxy Manager:** `${{ steps.npm.outputs.v || 'Fehler' }}`
+            📈 **Uptime-Kuma:** `${{ steps.uptime.outputs.v || 'Fehler' }}`
+            🔑 **Vaultwarden:** `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`
             
             _Das System prüft alle 6 Stunden auf Updates._
