@@ -9,29 +9,32 @@ jobs:
   check-releases:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Paperless-ngx
+      - name: Fetch Paperless-ngx Version
         id: paperless
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          URL="https://github.com"
-          VERSION=$(curl -s "$URL" | jq -r '.tag_name')
+          VERSION=$(gh api repos/paperless-ngx/paperless-ngx/releases/latest --jq '.tag_name')
           echo "ver=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Check Authelia
+      - name: Fetch Authelia Version
         id: authelia
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          URL="https://github.com"
-          VERSION=$(curl -s "$URL" | jq -r '.tag_name')
+          VERSION=$(gh api repos/authelia/authelia/releases/latest --jq '.tag_name')
           echo "ver=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Check Ollama
+      - name: Fetch Ollama Version
         id: ollama
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          URL="https://github.com"
-          VERSION=$(curl -s "$URL" | jq -r '.tag_name')
+          VERSION=$(gh api repos/ollama/ollama/releases/latest --jq '.tag_name')
           echo "ver=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Send Telegram Notification
-        uses: appleboy/telegram-action@master
+        uses: appleboy/telegram-action@v1.1.1
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
