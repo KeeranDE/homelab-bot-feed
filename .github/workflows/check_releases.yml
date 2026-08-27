@@ -12,19 +12,22 @@ jobs:
       - name: Check Paperless-ngx
         id: paperless
         run: |
-          VERSION=$(curl -s https://github.com | jq -r '.tag_name')
+          URL="https://github.com"
+          VERSION=$(curl -s "$URL" | jq -r '.tag_name')
           echo "ver=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check Authelia
         id: authelia
         run: |
-          VERSION=$(curl -s https://github.com | jq -r '.tag_name')
+          URL="https://github.com"
+          VERSION=$(curl -s "$URL" | jq -r '.tag_name')
           echo "ver=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check Ollama
         id: ollama
         run: |
-          VERSION=$(curl -s https://github.com | jq -r '.tag_name')
+          URL="https://github.com"
+          VERSION=$(curl -s "$URL" | jq -r '.tag_name')
           echo "ver=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Send Telegram Notification
