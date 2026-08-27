@@ -2,7 +2,7 @@ name: Homelab Release Feed
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -115,18 +115,18 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
           message: |
-            🔍 **Aktuelle Homelab Versionen:**
+            🔍 *Aktuelle Homelab Versionen:*
             
-            📄 **Paperless-ngx:** `${{ steps.paperless.outputs.v || 'Fehler' }}`
-            🔒 **Authelia:** `${{ steps.authelia.outputs.v || 'Fehler' }}`
-            🧠 **Ollama:** `${{ steps.ollama.outputs.v || 'Fehler' }}`
-            🛡️ **AdGuard Home:** `${{ steps.adguard.outputs.v || 'Fehler' }}`
-            📊 **Beszel:** `${{ steps.beszel.outputs.v || 'Fehler' }}`
-            🐳 **Dockge:** `${{ steps.dockge.outputs.v || 'Fehler' }}`
-            📂 **Filebrowser:** `${{ steps.filebrowser.outputs.v || 'Fehler' }}`
-            🎬 **Jellyfin:** `${{ steps.jellyfin.outputs.v || 'Fehler' }}`
-            🌐 **Nginx Proxy Manager:** `${{ steps.npm.outputs.v || 'Fehler' }}`
-            📈 **Uptime-Kuma:** `${{ steps.uptime.outputs.v || 'Fehler' }}`
-            🔑 **Vaultwarden:** `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`
+            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`
+            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`
+            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`
+            🛡️ *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`
+            📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`
+            🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`
+            📂 *Filebrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`
+            🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`
+            🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`
+            📈 *Uptime-Kuma:* `${{ steps.uptime.outputs.v || 'Fehler' }}`
+            🔑 *Vaultwarden:* `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`
             
-            _Das System prüft alle 6 Stunden auf Updates._
+            _Das System prüft alle 24 Stunden auf Updates._
