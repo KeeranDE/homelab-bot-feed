@@ -1,0 +1,43 @@
+name: Homelab Release Feed
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Paperless-ngx
+        id: paperless
+        run: |
+          VERSION=$(curl -s https://github.com | jq -r '.tag_name')
+          echo "ver=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check Authelia
+        id: authelia
+        run: |
+          VERSION=$(curl -s https://github.com | jq -r '.tag_name')
+          echo "ver=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check Ollama
+        id: ollama
+        run: |
+          VERSION=$(curl -s https://github.com | jq -r '.tag_name')
+          echo "ver=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Send Telegram Notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
+          message: |
+            🔍 **Aktuelle Homelab Versionen:**
+            
+            📄 **Paperless-ngx:** `${{ steps.paperless.outputs.ver }}`
+            🔒 **Authelia:** `${{ steps.authelia.outputs.ver }}`
+            🧠 **Ollama:** `${{ steps.ollama.outputs.ver }}`
+            
+            _Das System prüft alle 6 Stunden auf Updates._
