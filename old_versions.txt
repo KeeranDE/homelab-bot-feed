@@ -1,0 +1,11 @@
+paperless:v3.1.0
+authelia:v4.39.20
+ollama:v0.33.1
+adguard:v0.107.79
+beszel:v0.18.8
+dockge:1.5.0
+filebrowser:v2.63.23
+jellyfin:v10.11.11
+npm:v2.15.1
+uptime:2.5.3
+vaultwarden:1.37.2
