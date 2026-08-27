@@ -9,15 +9,9 @@ jobs:
   check-releases:
     runs-on: ubuntu-latest
     steps:
-      # 1. Vorherige Versionen aus dem GitHub Cache laden
-      - name: Restore version cache
-        id: cache-versions
-        uses: actions/cache@v4
-        with:
-          path: .versions
-          key: homelab-versions-${{ github.run_id }}
-          restore-keys: |
-            homelab-versions-
+      # 1. Repository auschecken, um Lese-/Schreibzugriff auf die Dateien zu haben
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Fetch Paperless-ngx Version
         id: paperless
@@ -118,24 +112,23 @@ jobs:
           V=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
-      # 2. Logik zur Ermittlung des alten Zustands und Kennzeichnung des Versionssprungs
+      # 2. Logik zur Ermittlung des alten Zustands aus einer Datei im Repository
       - name: Compare versions
         id: compare
         run: |
-          mkdir -p .versions
-          touch .versions/old.txt
+          touch old_versions.txt
           
           check_diff() {
             local name=$1
             local current=$2
-            local old=$(grep "^${name}:" .versions/old.txt | cut -d':' -f2)
+            local old=$(grep "^${name}:" old_versions.txt | cut -d':' -f2)
             
             if [ -n "$old" ] && [ "$old" != "$current" ] && [ "$current" != "Fehler" ] && [ "$old" != "Fehler" ]; then
               echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
             else
               echo "${name}_text=" >> $GITHUB_OUTPUT
             fi
-            echo "${name}:${current}" >> .versions/new.txt
+            echo "${name}:${current}" >> new_versions.txt
           }
           
           check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
@@ -150,7 +143,15 @@ jobs:
           check_diff "uptime" "${{ steps.uptime.outputs.v || 'Fehler' }}"
           check_diff "vaultwarden" "${{ steps.vaultwarden.outputs.v || 'Fehler' }}"
           
-          mv .versions/new.txt .versions/old.txt
+          mv new_versions.txt old_versions.txt
+
+      # 3. Neue Versionen direkt im Repository abspeichern für das nächste Mal
+      - name: Save versions to repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add old_versions.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update stored versions [skip ci]" && git push)
 
       - name: Send Telegram Notification
         uses: appleboy/telegram-action@v1.1.1
