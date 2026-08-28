@@ -1,6 +1,6 @@
 paperless:v3.1.0
 authelia:v4.39.20
-ollama:v0.33.1
+ollama:v0.33.2
 adguard:v0.107.79
 beszel:v0.18.8
 dockge:1.5.0
