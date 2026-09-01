@@ -15,13 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch Paperless-ngx Version
-        id: paperless
+      - name: Fetch AdGuard Home Version
+        id: adguard
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/paperless-ngx/paperless-ngx/releases/latest --jq '.tag_name')
+          V=$(gh api repos/AdguardTeam/AdGuardHome/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Authelia Version
@@ -31,24 +31,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/authelia/authelia/releases/latest --jq '.tag_name')
-          echo "v=$V" >> $GITHUB_OUTPUT
-
-      - name: Fetch Ollama Version
-        id: ollama
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          V=$(gh api repos/ollama/ollama/releases/latest --jq '.tag_name')
-          echo "v=$V" >> $GITHUB_OUTPUT
-
-      - name: Fetch AdGuard Home Version
-        id: adguard
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          V=$(gh api repos/AdguardTeam/AdGuardHome/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Beszel Version
@@ -75,7 +57,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/gtsteffaniak/filebrowser/releases --jq '.[0].tag_name')
+          V=$(gh api repos/gtsteffaniak/filebrowser/releases --jq '..tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Grafana Version
+        id: grafana
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/grafana/grafana/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Home Assistant Version
+        id: homeassistant
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/home-assistant/core/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Jellyfin Version (RC / Pre-Release Kanal)
@@ -84,7 +84,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[0].tag_name')
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '..tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Nginx Proxy Manager Version
@@ -94,6 +94,33 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           V=$(gh api repos/NginxProxyManager/nginx-proxy-manager/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Ollama Version
+        id: ollama
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/ollama/ollama/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Paperless-ngx Version
+        id: paperless
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/paperless-ngx/paperless-ngx/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Prometheus Version
+        id: prometheus
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/prometheus/prometheus/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Uptime Kuma Version
@@ -124,23 +151,18 @@ jobs:
             local name=$1
             local current=$2
             
-            # Falls die API fehlschlägt, direkt abbrechen
             if [ -z "$current" ] || [ "$current" == "Fehler" ]; then
               echo "${name}_text=" >> $GITHUB_OUTPUT
               echo "${name}:Fehler" >> new_versions.txt
               return
             fi
             
-            # Liest die alte Version aus der Datei
             local old=$(grep "^${name}:" old_versions.txt | cut -d':' -f2)
-            
-            # Bereinigt führende 'v's für sort -V
             local old_clean=$(echo "$old" | sed 's/^v//' | xargs)
             local current_clean=$(echo "$current" | sed 's/^v//' | xargs)
             
             if [ -n "$old" ] && [ "$old" != "Fehler" ]; then
               if [ "$old_clean" != "$current_clean" ]; then
-                # Vergleicht, welche Version neuer ist
                 local higher=$(echo -e "$old_clean\n$current_clean" | sort -V | tail -n 1)
                 if [ "$higher" == "$current_clean" ]; then
                   echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
@@ -151,22 +173,24 @@ jobs:
                 echo "${name}_text=" >> $GITHUB_OUTPUT
               fi
             else
-              # Wenn keine alte Version existiert (Erster Run)
               echo "${name}_text=" >> $GITHUB_OUTPUT
             fi
             
             echo "${name}:${current}" >> new_versions.txt
           }
           
-          check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
-          check_diff "authelia" "${{ steps.authelia.outputs.v || 'Fehler' }}"
-          check_diff "ollama" "${{ steps.ollama.outputs.v || 'Fehler' }}"
           check_diff "adguard" "${{ steps.adguard.outputs.v || 'Fehler' }}"
+          check_diff "authelia" "${{ steps.authelia.outputs.v || 'Fehler' }}"
           check_diff "beszel" "${{ steps.beszel.outputs.v || 'Fehler' }}"
           check_diff "dockge" "${{ steps.dockge.outputs.v || 'Fehler' }}"
           check_diff "filebrowser" "${{ steps.filebrowser.outputs.v || 'Fehler' }}"
+          check_diff "grafana" "${{ steps.grafana.outputs.v || 'Fehler' }}"
+          check_diff "homeassistant" "${{ steps.homeassistant.outputs.v || 'Fehler' }}"
           check_diff "jellyfin" "${{ steps.jellyfin.outputs.v || 'Fehler' }}"
           check_diff "npm" "${{ steps.npm.outputs.v || 'Fehler' }}"
+          check_diff "ollama" "${{ steps.ollama.outputs.v || 'Fehler' }}"
+          check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
+          check_diff "prometheus" "${{ steps.prometheus.outputs.v || 'Fehler' }}"
           check_diff "uptime" "${{ steps.uptime.outputs.v || 'Fehler' }}"
           check_diff "vaultwarden" "${{ steps.vaultwarden.outputs.v || 'Fehler' }}"
           
@@ -181,15 +205,18 @@ jobs:
           message: |
             🔍 *Aktuelle Homelab Versionen:*
             
-            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
-            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
-            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
             ${{ secrets.ADGUARD_EMOJI || '🛡️' }} *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
+            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
             📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.beszel_text }}
             🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.dockge_text }}
-            📂 *Quantumbrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
+            📊 *Grafana:* `${{ steps.grafana.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.grafana_text }}
+            🏠 *Home Assistant:* `${{ steps.homeassistant.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.homeassistant_text }}
             🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.jellyfin_text }}
             🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.npm_text }}
+            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
+            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
+            🔥 *Prometheus:* `${{ steps.prometheus.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.prometheus_text }}
+            📂 *Quantumbrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
             📈 *Uptime-Kuma:* `${{ steps.uptime.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.uptime_text }}
             🔑 *Vaultwarden:* `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.vaultwarden_text }}
             
