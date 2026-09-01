@@ -69,22 +69,23 @@ jobs:
           V=$(gh api repos/louislam/dockge/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
-      - name: Fetch Filebrowser Version
+      - name: Fetch Filebrowser Version (Beta-Kanal)
         id: filebrowser
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/gtsteffaniak/filebrowser/releases/latest --jq '.tag_name')
+          V=$(gh api repos/gtsteffaniak/filebrowser/releases --jq '.[0].tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
-      - name: Fetch Jellyfin Version
+      - name: Fetch Jellyfin Version (RC / Pre-Release Kanal)
         id: jellyfin
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[] | select(.prerelease == false and .tag_name != "v10.11.11") | .tag_name' | head -n 1)
+          # Holt das allerneueste Release aus der Liste, unabhängig vom Pre-Release-Status
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[0].tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Nginx Proxy Manager Version
@@ -125,7 +126,7 @@ jobs:
             local old=$(grep "^${name}:" old_versions.txt | cut -d':' -f2)
             
             if [ -n "$old" ] && [ "$old" != "$current" ] && [ "$current" != "Fehler" ] && [ "$old" != "Fehler" ]; then
-              # sort -V vergleicht semantische Versionsnummern korrekt (z.B. v1.5.5 vs v2.63.23)
+              # sort -V sortiert semantische Versionen (und RC/beta-Bezeichner) zuverlässig
               local higher_version=$(echo -e "${old}\n${current}" | sort -V | tail -n 1)
               if [ "$higher_version" == "$current" ]; then
                 echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
@@ -171,7 +172,7 @@ jobs:
             📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
             🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
             🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
-            🛡️ *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
+            🛡️ *AdGuard Home:* `${{ secrets.ADGUARD_EMOJI || '🛡️' }} AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
             📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.beszel_text }}
             🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.dockge_text }}
             📂 *Quantumbrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
