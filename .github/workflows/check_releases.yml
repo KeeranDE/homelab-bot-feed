@@ -156,7 +156,7 @@ jobs:
       - name: Save versions to repository
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]@://github.com"
           git add old_versions.txt
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update stored versions [skip ci]" && git push)
 
@@ -172,7 +172,7 @@ jobs:
             📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
             🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
             🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
-            🛡️ *AdGuard Home:* `${{ secrets.ADGUARD_EMOJI || '🛡️' }} AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
+            ${{ secrets.ADGUARD_EMOJI || '🛡️' }} *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
             📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.beszel_text }}
             🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.dockge_text }}
             📂 *Quantumbrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
