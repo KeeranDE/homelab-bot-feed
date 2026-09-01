@@ -4,8 +4,8 @@ ollama:v0.33.2
 adguard:v0.107.79
 beszel:v0.18.8
 dockge:1.5.0
-filebrowser:v2.63.23
-jellyfin:v10.11.11
+filebrowser:v1.5.5-stable
+jellyfin:v10.11.10
 npm:v2.15.1
 uptime:2.5.3
 vaultwarden:1.37.2
