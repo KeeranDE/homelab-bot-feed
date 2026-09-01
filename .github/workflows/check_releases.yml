@@ -84,7 +84,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Holt das allerneueste Release aus der Liste, unabhängig vom Pre-Release-Status
           V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[0].tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
@@ -123,19 +122,30 @@ jobs:
           check_diff() {
             local name=$1
             local current=$2
+            
+            # Liere die alte Version aus der Datei
             local old=$(grep "^${name}:" old_versions.txt | cut -d':' -f2)
             
-            if [ -n "$old" ] && [ "$old" != "$current" ] && [ "$current" != "Fehler" ] && [ "$old" != "Fehler" ]; then
-              # sort -V sortiert semantische Versionen (und RC/beta-Bezeichner) zuverlässig
-              local higher_version=$(echo -e "${old}\n${current}" | sort -V | tail -n 1)
-              if [ "$higher_version" == "$current" ]; then
-                echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
+            # Bereinige führende 'v's für einen sauberen Vergleich
+            local old_clean=$(echo "$old" | sed 's/^v//')
+            local current_clean=$(echo "$current" | sed 's/^v//')
+            
+            if [ -n "$old" ] && [ "$old" != "Fehler" ] && [ "$current" != "Fehler" ]; then
+              if [ "$old_clean" != "$current_clean" ]; then
+                # Prüft ob die aktuelle Version neuer (höher) ist
+                local higher=$(echo -e "$old_clean\n$current_clean" | sort -V | tail -n 1)
+                if [ "$higher" == "$current_clean" ]; then
+                  echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
+                else
+                  echo "${name}_text=" >> $GITHUB_OUTPUT
+                fi
               else
                 echo "${name}_text=" >> $GITHUB_OUTPUT
               fi
             else
               echo "${name}_text=" >> $GITHUB_OUTPUT
             fi
+            
             echo "${name}:${current}" >> new_versions.txt
           }
           
