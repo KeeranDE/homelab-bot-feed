@@ -68,15 +68,11 @@ jobs:
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Filebrowser Version
-      - name: Fetch Jellyfin Version
-        id: jellyfin
+        id: filebrowser
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/jellyfin/jellyfin/releases --jq '[.[] | select(.prerelease == false and .tag_name != "v10.11.11")][0].tag_name')
-          echo "v=$V" >> $GITHUB_OUTPUT
-
           V=$(gh api repos/gtsteffaniak/filebrowser/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
@@ -86,7 +82,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/jellyfin/jellyfin/releases --jq '[.[] | select(.prerelease == false and .tag_name != "v10.11.11")][0].tag_name')
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[] | select(.prerelease == false and .tag_name != "v10.11.11") | .tag_name' | head -n 1)
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Nginx Proxy Manager Version
@@ -153,7 +149,7 @@ jobs:
       - name: Save versions to repository
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]@://github.com"
           git add old_versions.txt
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update stored versions [skip ci]" && git push)
 
