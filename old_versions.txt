@@ -1,4 +1,4 @@
-paperless:v3.1.0
+paperless:v3.0.1
 authelia:v4.39.10
 ollama:v0.3.0
 adguard:v0.107.79
