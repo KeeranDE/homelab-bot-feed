@@ -57,7 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/gtsteffaniak/filebrowser/releases --jq '..tag_name')
+          V=$(gh api repos/gtsteffaniak/filebrowser/releases --jq '.[0].tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Grafana Version
@@ -84,7 +84,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/jellyfin/jellyfin/releases --jq '..tag_name')
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[0].tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Nginx Proxy Manager Version
