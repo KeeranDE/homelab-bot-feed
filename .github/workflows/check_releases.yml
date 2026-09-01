@@ -68,11 +68,15 @@ jobs:
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Filebrowser Version
-        id: filebrowser
+      - name: Fetch Jellyfin Version
+        id: jellyfin
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '[.[] | select(.prerelease == false and .tag_name != "v10.11.11")][0].tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
           V=$(gh api repos/gtsteffaniak/filebrowser/releases/latest --jq '.tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
