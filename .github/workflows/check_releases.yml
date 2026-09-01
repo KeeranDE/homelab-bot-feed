@@ -6,98 +6,151 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # Ermöglicht das Speichern der Versionen im Repo
+  contents: write
 
 jobs:
   check-releases:
     runs-on: ubuntu-latest
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        app:
-          - { id: "paperless", name: "📄 Paperless-ngx", repo: "paperless-ngx/paperless-ngx", custom_jq: ".tag_name" }
-          - { id: "authelia", name: "🔒 Authelia", repo: "authelia/authelia", custom_jq: ".tag_name" }
-          - { id: "ollama", name: "🧠 Ollama", repo: "ollama/ollama", custom_jq: ".tag_name" }
-          - { id: "adguard", name: "🛡️ AdGuard Home", repo: "AdguardTeam/AdGuardHome", custom_jq: ".tag_name" }
-          - { id: "beszel", name: "📊 Beszel", repo: "henrygd/beszel", custom_jq: ".tag_name" }
-          - { id: "dockge", name: "🐳 Dockge", repo: "louislam/dockge", custom_jq: ".tag_name" }
-          - { id: "filebrowser", name: "📂 Filebrowser", repo: "gtsteffaniak/filebrowser", custom_jq: ".tag_name" }
-          - { id: "jellyfin", name: "🎬 Jellyfin", repo: "jellyfin/jellyfin", custom_jq: ".[] | select(.prerelease == false and .tag_name != \"v10.11.11\") | .tag_name", use_releases_list: true }
-          - { id: "npm", name: "🌐 Nginx Proxy Manager", repo: "NginxProxyManager/nginx-proxy-manager", custom_jq: ".tag_name" }
-          - { id: "uptime", name: "📈 Uptime-Kuma", repo: "louislam/uptime-kuma", custom_jq: ".tag_name" }
-          - { id: "vaultwarden", name: "🔑 Vaultwarden", repo: "dani-garcia/vaultwarden", custom_jq: ".tag_name" }
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch and Compare Version
-        id: check
+      - name: Fetch Paperless-ngx Version
+        id: paperless
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # 1. Version abrufen
-          endpoint="releases/latest"
-          if [ "${{ matrix.app.use_releases_list }}" = "true" ]; then
-            endpoint="releases"
-          fi
-          
-          V=$(gh api "repos/${{ matrix.app.repo }}/$endpoint" --jq '${{ matrix.app.custom_jq }}' 2>/dev/null | head -n 1)
-          if [ -z "$V" ]; then V="Fehler"; fi
-          
-          # 2. Mit altem Zustand vergleichen
-          touch old_versions.txt
-          OLD=$(grep "^${{ matrix.app.id }}:" old_versions.txt | cut -d':' -f2)
-          
-          TEXT=""
-          if [ -n "$OLD" ] && [ "$OLD" != "$V" ] && [ "$V" != "Fehler" ] && [ "$OLD" != "Fehler" ]; then
-            TEXT=" (alt: $OLD) 🆕"
-          fi
-          
-          # 3. Temporäre Ergebnisse für diese App speichern
-          mkdir -p results
-          echo "${{ matrix.app.id }}:${V}" > results/${{ matrix.app.id }}.txt
-          echo "${matrix.app.name}: \`${V}\`${TEXT}" > results/${{ matrix.app.id }}_msg.txt
+          V=$(gh api repos/paperless-ngx/paperless-ngx/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-      # Zwischenschritt zum Sammeln aller Matrix-Ergebnisse
-      - name: Upload temporary results
-        uses: actions/upload-artifact@v4
-        with:
-          name: res-${{ matrix.app.id }}
-          path: results/
-          retention-days: 1
+      - name: Fetch Authelia Version
+        id: authelia
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/authelia/authelia/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-  notify-and-save:
-    needs: check-releases
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Fetch Ollama Version
+        id: ollama
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/ollama/ollama/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-      - name: Download all results
-        uses: actions/download-artifact@v4
-        with:
-          pattern: res-*
-          path: results
-          merge-multiple: true
+      - name: Fetch AdGuard Home Version
+        id: adguard
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/AdguardTeam/AdGuardHome/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-      - name: Process results and Build Message
+      - name: Fetch Beszel Version
+        id: beszel
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/henrygd/beszel/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Dockge Version
+        id: dockge
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/louislam/dockge/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Filebrowser Version
+        id: filebrowser
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/gtsteffaniak/filebrowser/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Jellyfin Version
+        id: jellyfin
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[] | select(.prerelease == false and .tag_name != "v10.11.11") | .tag_name' | head -n 1)
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Nginx Proxy Manager Version
+        id: npm
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/NginxProxyManager/nginx-proxy-manager/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Uptime Kuma Version
+        id: uptime
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/louislam/uptime-kuma/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Vaultwarden Version
+        id: vaultwarden
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
         run: |
           touch old_versions.txt
-          echo "🔍 *Aktuelle Homelab Versionen:*" > telegram_msg.txt
-          echo "" >> telegram_msg.txt
           
-          # Alphabetisch oder nach ID zusammenführen
-          cat results/*_msg.txt >> telegram_msg.txt
+          check_diff() {
+            local name=$1
+            local current=$2
+            local old=$(grep "^${name}:" old_versions.txt | cut -d':' -f2)
+            
+            if [ -n "$old" ] && [ "$old" != "$current" ] && [ "$current" != "Fehler" ] && [ "$old" != "Fehler" ]; then
+              # sort -V vergleicht semantische Versionsnummern korrekt (z.B. v1.5.5 vs v2.63.23)
+              local higher_version=$(echo -e "${old}\n${current}" | sort -V | tail -n 1)
+              if [ "$higher_version" == "$current" ]; then
+                echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
+              else
+                echo "${name}_text=" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "${name}_text=" >> $GITHUB_OUTPUT
+            fi
+            echo "${name}:${current}" >> new_versions.txt
+          }
           
-          echo "" >> telegram_msg.txt
-          echo "_Das System prüft alle 24 Stunden auf Updates._" >> telegram_msg.txt
+          check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
+          check_diff "authelia" "${{ steps.authelia.outputs.v || 'Fehler' }}"
+          check_diff "ollama" "${{ steps.ollama.outputs.v || 'Fehler' }}"
+          check_diff "adguard" "${{ steps.adguard.outputs.v || 'Fehler' }}"
+          check_diff "beszel" "${{ steps.beszel.outputs.v || 'Fehler' }}"
+          check_diff "dockge" "${{ steps.dockge.outputs.v || 'Fehler' }}"
+          check_diff "filebrowser" "${{ steps.filebrowser.outputs.v || 'Fehler' }}"
+          check_diff "jellyfin" "${{ steps.jellyfin.outputs.v || 'Fehler' }}"
+          check_diff "npm" "${{ steps.npm.outputs.v || 'Fehler' }}"
+          check_diff "uptime" "${{ steps.uptime.outputs.v || 'Fehler' }}"
+          check_diff "vaultwarden" "${{ steps.vaultwarden.outputs.v || 'Fehler' }}"
           
-          # Neue Versionsdatei für das Repo bauen
-          cat results/*.txt | grep -v "_msg" > old_versions.txt
+          mv new_versions.txt old_versions.txt
 
       - name: Save versions to repository
         run: |
@@ -112,4 +165,19 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
-          document: telegram_msg.txt # Nutzt die generierte Datei als Nachrichtentext
+          message: |
+            🔍 *Aktuelle Homelab Versionen:*
+            
+            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
+            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
+            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
+            🛡️ *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
+            📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.beszel_text }}
+            🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.dockge_text }}
+            📂 *Quantumbrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
+            🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.jellyfin_text }}
+            🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.npm_text }}
+            📈 *Uptime-Kuma:* `${{ steps.uptime.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.uptime_text }}
+            🔑 *Vaultwarden:* `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.vaultwarden_text }}
+            
+            _Das System prüft alle 24 Stunden auf Updates._
