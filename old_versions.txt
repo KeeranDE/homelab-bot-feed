@@ -8,7 +8,7 @@ homeassistant:2026.8.3
 jellyfin:v12.0-rc7
 npm:v2.15.1
 ollama:v0.33.2
-paperless:v3.1.1
+paperless:v3.1.2
 prometheus:v3.14.0
 uptime:2.5.3
 vaultwarden:1.37.2
