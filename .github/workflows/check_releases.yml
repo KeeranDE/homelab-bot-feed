@@ -93,7 +93,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          V=$(gh api repos/eclipse-mosquitto/mosquitto/releases/latest --jq '.tag_name')
+          V=$(gh api repos/eclipse-mosquitto/mosquitto/tags --jq '.[0].name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
       - name: Fetch Nginx Proxy Manager Version
