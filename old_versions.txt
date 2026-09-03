@@ -6,7 +6,7 @@ filebrowser:v2.0.4-beta
 grafana:v13.2.1
 homeassistant:2026.9.0
 jellyfin:v12.0-rc7
-mosquitto:Fehler
+mosquitto:v2.1.2
 npm:v2.15.1
 ollama:v0.33.2
 paperless:v3.1.2
