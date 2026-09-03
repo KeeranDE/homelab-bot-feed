@@ -87,6 +87,15 @@ jobs:
           V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[0].tag_name')
           echo "v=$V" >> $GITHUB_OUTPUT
 
+      - name: Fetch Mosquitto Version
+        id: mosquitto
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/eclipse-mosquitto/mosquitto/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
       - name: Fetch Nginx Proxy Manager Version
         id: npm
         continue-on-error: true
@@ -187,6 +196,7 @@ jobs:
           check_diff "grafana" "${{ steps.grafana.outputs.v || 'Fehler' }}"
           check_diff "homeassistant" "${{ steps.homeassistant.outputs.v || 'Fehler' }}"
           check_diff "jellyfin" "${{ steps.jellyfin.outputs.v || 'Fehler' }}"
+          check_diff "mosquitto" "${{ steps.mosquitto.outputs.v || 'Fehler' }}"
           check_diff "npm" "${{ steps.npm.outputs.v || 'Fehler' }}"
           check_diff "ollama" "${{ steps.ollama.outputs.v || 'Fehler' }}"
           check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
@@ -212,6 +222,7 @@ jobs:
             📊 *Grafana:* `${{ steps.grafana.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.grafana_text }}
             🏠 *Home Assistant:* `${{ steps.homeassistant.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.homeassistant_text }}
             🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.jellyfin_text }}
+            🦟 *Mosquitto:* `${{ steps.mosquitto.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.mosquitto_text }}
             🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.npm_text }}
             🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
             📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
@@ -225,6 +236,6 @@ jobs:
       - name: Save versions to repository
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add old_versions.txt
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update stored versions [skip ci]" && git push)
