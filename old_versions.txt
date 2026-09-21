@@ -9,7 +9,7 @@ jellyfin:v12.1
 mosquitto:v2.1.2
 npm:v2.15.1
 ollama:v0.34.2
-paperless:v3.2.0
+paperless:v3.2.1
 prometheus:v3.14.0
 uptime:2.5.5
 vaultwarden:1.37.3
