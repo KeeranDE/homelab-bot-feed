@@ -2,7 +2,7 @@ adguard:v0.107.79
 authelia:v4.39.28
 beszel:v0.20.0
 dockge:1.5.0
-filebrowser:v2.0.7-beta
+filebrowser:v2.0.8-beta
 grafana:v13.2.2
 homeassistant:2026.9.3
 jellyfin:v12.1
