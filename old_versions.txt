@@ -2,7 +2,7 @@ adguard:v0.107.79
 authelia:v4.39.28
 beszel:v0.20.0
 dockge:1.5.0
-filebrowser:v2.0.8-beta
+filebrowser:v2.0.9-beta
 grafana:v13.2.2
 homeassistant:2026.9.3
 jellyfin:v12.1
@@ -10,6 +10,6 @@ mosquitto:v2.1.2
 npm:v2.16.0
 ollama:v0.34.4
 paperless:v3.2.1
-prometheus:v3.14.0
+prometheus:v3.15.0
 uptime:2.5.5
 vaultwarden:1.37.3
