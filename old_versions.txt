@@ -5,11 +5,11 @@ dockge:1.5.0
 filebrowser:v2.0.10-beta
 grafana:v13.2.3
 homeassistant:2026.9.4
-jellyfin:v12.1
+jellyfin:v12.2
 mosquitto:v2.1.2
 npm:v2.16.0
 ollama:v0.35.1
-paperless:v3.2.1
+paperless:v3.3.0
 prometheus:v3.15.0
 uptime:2.5.5
-vaultwarden:1.37.3
+vaultwarden:1.37.4
