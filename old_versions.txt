@@ -3,12 +3,12 @@ authelia:v4.39.28
 beszel:v0.21.1
 dockge:1.5.0
 filebrowser:v2.0.2-stable
-grafana:v13.2.4
+grafana:v13.3.0
 homeassistant:2026.10.4
 jellyfin:v12.4
 mosquitto:v2.1.2
 npm:v2.16.0
-ollama:v0.40.11
+ollama:v0.40.12
 paperless:v3.3.4
 prometheus:v3.15.1
 uptime:2.5.8
