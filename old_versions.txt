@@ -12,4 +12,4 @@ ollama:v0.40.13
 paperless:v3.4.1
 prometheus:v3.15.1
 uptime:2.5.9
-vaultwarden:1.37.4
+vaultwarden:1.37.5
