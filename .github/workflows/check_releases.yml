@@ -84,7 +84,8 @@ jobs:
         for item in "${TAGS[@]}"; do
           IFS=";" read -r ID REPO <<< "$item"
           
-          NEW_VER=$(gh api repos/$REPO/tags --jq '.[0].name' 2>/dev/null || echo "")
+          # Sicherer Filter greift das erste gültige Text-Element aus dem Array ab
+          NEW_VER=$(gh api repos/$REPO/tags --jq '..name' 2>/dev/null || echo "")
           
           if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
             OLD_VER=$(grep "^$ID=" old_versions.txt | cut -d'=' -f2)
