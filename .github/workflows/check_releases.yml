@@ -17,6 +17,7 @@ jobs:
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ermöglicht die Nutzung von gh api ohne Rate-Limits
       run: |
         # Datei für alte Versionen erstellen, falls sie nicht existiert
         touch old_versions.txt
@@ -61,9 +62,10 @@ jobs:
         for item in "${RELEASES[@]}"; do
           IFS=";" read -r ID REPO <<< "$item"
           
-          NEW_VER=$(curl -s "https://github.com" | jq -r '.tag_name')
+          # gh api nutzen, um Rate-Limits zu umgehen und Fehler sauber abzufangen
+          NEW_VER=$(gh api repos/$REPO/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
           
-          if [ "$NEW_VER" != "null" ] && [ -n "$NEW_VER" ]; then
+          if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
             OLD_VER=$(grep "^$ID=" old_versions.txt | cut -d'=' -f2)
             
             if [ "$OLD_VER" != "$NEW_VER" ]; then
@@ -83,10 +85,10 @@ jobs:
         for item in "${TAGS[@]}"; do
           IFS=";" read -r ID REPO <<< "$item"
           
-          # Greift gezielt auf das erste Element des Arrays zu, um Fehler zu vermeiden
-          NEW_VER=$(curl -s "https://github.com" | jq -r '.[0].name')
+          # Holt das erste Element aus dem Array und extrahiert den Namen fehlerfrei
+          NEW_VER=$(gh api repos/$REPO/tags --jq '.[0].name' 2>/dev/null || echo "")
           
-          if [ "$NEW_VER" != "null" ] && [ -n "$NEW_VER" ]; then
+          if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
             OLD_VER=$(grep "^$ID=" old_versions.txt | cut -d'=' -f2)
             
             if [ "$OLD_VER" != "$NEW_VER" ]; then
