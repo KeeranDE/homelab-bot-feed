@@ -17,7 +17,7 @@ jobs:
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ermöglicht die Nutzung von gh api ohne Rate-Limits
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Datei für alte Versionen erstellen, falls sie nicht existiert
         touch old_versions.txt
@@ -62,7 +62,6 @@ jobs:
         for item in "${RELEASES[@]}"; do
           IFS=";" read -r ID REPO <<< "$item"
           
-          # gh api nutzen, um Rate-Limits zu umgehen und Fehler sauber abzufangen
           NEW_VER=$(gh api repos/$REPO/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
           
           if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
@@ -85,7 +84,6 @@ jobs:
         for item in "${TAGS[@]}"; do
           IFS=";" read -r ID REPO <<< "$item"
           
-          # Holt das erste Element aus dem Array und extrahiert den Namen fehlerfrei
           NEW_VER=$(gh api repos/$REPO/tags --jq '.[0].name' 2>/dev/null || echo "")
           
           if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
