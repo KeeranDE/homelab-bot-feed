@@ -83,6 +83,7 @@ jobs:
         for item in "${TAGS[@]}"; do
           IFS=";" read -r ID REPO <<< "$item"
           
+          # Greift gezielt auf das erste Element des Arrays zu, um Fehler zu vermeiden
           NEW_VER=$(curl -s "https://github.com" | jq -r '.[0].name')
           
           if [ "$NEW_VER" != "null" ] && [ -n "$NEW_VER" ]; then
