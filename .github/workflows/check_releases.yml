@@ -2,121 +2,240 @@ name: Homelab Release Feed
 
 on:
   schedule:
-    - cron: '0 6 * * *' # Täglich um 06:00 Uhr
-  workflow_dispatch: # Ermöglicht manuellen Start
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   check-releases:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Check Versions and Notify
-      env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # Datei für alte Versionen erstellen, falls sie nicht existiert
-        touch old_versions.txt
+      - name: Fetch AdGuard Home Version
+        id: adguard
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/AdguardTeam/AdGuardHome/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-        # Array der Standard-Releases (ID;Repository)
-        RELEASES=(
-          "homeassistant;home-assistant/core"
-          "portainer;portainer/portainer"
-          "uptime-kuma;louislam/uptime-kuma"
-          "nodered;node-red/node-red"
-          "frigate;blakeblackshear/frigate"
-          "plex;plexinc/pms-docker"
-          "tautulli;Tautulli/Tautulli"
-          "jellyfin;jellyfin/jellyfin"
-          "nextcloud;nextcloud/server"
-          "adguard;AdguardTeam/AdGuardHome"
-          "vaultwarden;dani-garcia/vaultwarden"
-          "promtail;grafana/loki"
-          "loki;grafana/loki"
-          "grafana;grafana/grafana"
-          "prometheus;prometheus/prometheus"
-          "zigbee2mqtt;Koenkk/zigbee2mqtt"
-          "mediainfo;jlesage/docker-mediainfo"
-          "jdownloader;jlesage/docker-jdownloader-2"
-          "mkvtoolnix;jlesage/docker-mkvtoolnix"
-          "backrest;garethgeorge/backrest"
-          "redis;redis/redis"
-          "gotenberg;gotenberg/gotenberg"
-        )
+      - name: Fetch Authelia Version
+        id: authelia
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/authelia/authelia/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-        # Array für Git-Tags-Releases (ID;Repository)
-        TAGS=(
-          "mosquitto;eclipse-mosquitto/mosquitto"
-          "postgres;postgres/postgres"
-          "tika;apache/tika"
-        )
+      - name: Fetch Beszel Version
+        id: beszel
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/henrygd/beszel/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-        MESSAGE="🔔 *Homelab Update Feed* 🔔%0A%0A"
-        UPDATES_FOUND=false
+      - name: Fetch Dockge Version
+        id: dockge
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/louislam/dockge/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
 
-        # 1. Standard-Releases verarbeiten
-        for item in "${RELEASES[@]}"; do
-          IFS=";" read -r ID REPO <<< "$item"
+      - name: Fetch Filebrowser Version (Beta-Kanal)
+        id: filebrowser
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/gtsteffaniak/filebrowser/releases --jq '.[0].tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Grafana Version
+        id: grafana
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/grafana/grafana/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Home Assistant Version
+        id: homeassistant
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/home-assistant/core/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Jellyfin Version (RC / Pre-Release Kanal)
+        id: jellyfin
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/jellyfin/jellyfin/releases --jq '.[0].tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Mosquitto Version
+        id: mosquitto
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/eclipse-mosquitto/mosquitto/tags --jq '.[0].name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Nginx Proxy Manager Version
+        id: npm
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/NginxProxyManager/nginx-proxy-manager/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Ollama Version
+        id: ollama
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/ollama/ollama/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Paperless-ngx Version
+        id: paperless
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/paperless-ngx/paperless-ngx/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Prometheus Version
+        id: prometheus
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/prometheus/prometheus/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Uptime Kuma Version
+        id: uptime
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/louislam/uptime-kuma/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Fetch Vaultwarden Version
+        id: vaultwarden
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name')
+          echo "v=$V" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          touch old_versions.txt
+          rm -f new_versions.txt
           
-          NEW_VER=$(gh api repos/$REPO/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
-          
-          if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
-            OLD_VER=$(grep "^$ID=" old_versions.txt | cut -d'=' -f2)
+          check_diff() {
+            local name=$1
+            local current=$2
             
-            if [ "$OLD_VER" != "$NEW_VER" ]; then
-              UPDATES_FOUND=true
-              if [ -n "$OLD_VER" ]; then
-                MESSAGE+="- *$ID*: \`$OLD_VER\` ➡️ \`$NEW_VER\` 🆕%0A"
-              else
-                MESSAGE+="- *$ID*: Initial erfasst \`$NEW_VER\`%0A"
-              fi
-              sed -i "/^$ID=/d" old_versions.txt
-              echo "$ID=$NEW_VER" >> old_versions.txt
+            if [ -z "$current" ] || [ "$current" == "Fehler" ]; then
+              echo "${name}_text=" >> $GITHUB_OUTPUT
+              echo "${name}:Fehler" >> new_versions.txt
+              return
             fi
-          fi
-        done
-
-        # 2. Git-Tags-Releases verarbeiten
-        for item in "${TAGS[@]}"; do
-          IFS=";" read -r ID REPO <<< "$item"
-          
-          # Sicherer Filter greift das erste gültige Text-Element aus dem Array ab
-          NEW_VER=$(gh api repos/$REPO/tags --jq '..name' 2>/dev/null || echo "")
-          
-          if [ -n "$NEW_VER" ] && [ "$NEW_VER" != "null" ]; then
-            OLD_VER=$(grep "^$ID=" old_versions.txt | cut -d'=' -f2)
             
-            if [ "$OLD_VER" != "$NEW_VER" ]; then
-              UPDATES_FOUND=true
-              if [ -n "$OLD_VER" ]; then
-                MESSAGE+="- *$ID*: \`$OLD_VER\` ➡️ \`$NEW_VER\` 🆕%0A"
+            local old=$(grep "^${name}:" old_versions.txt | cut -d':' -f2)
+            local old_clean=$(echo "$old" | sed 's/^v//' | xargs)
+            local current_clean=$(echo "$current" | sed 's/^v//' | xargs)
+            
+            if [ -n "$old" ] && [ "$old" != "Fehler" ]; then
+              if [ "$old_clean" != "$current_clean" ]; then
+                local higher=$(echo -e "$old_clean\n$current_clean" | sort -V | tail -n 1)
+                if [ "$higher" == "$current_clean" ]; then
+                  echo "${name}_text= (alt: $old) 🆕" >> $GITHUB_OUTPUT
+                else
+                  echo "${name}_text=" >> $GITHUB_OUTPUT
+                fi
               else
-                MESSAGE+="- *$ID*: Initial erfasst \`$NEW_VER\`%0A"
+                echo "${name}_text=" >> $GITHUB_OUTPUT
               fi
-              sed -i "/^$ID=/d" old_versions.txt
-              echo "$ID=$NEW_VER" >> old_versions.txt
+            else
+              echo "${name}_text=" >> $GITHUB_OUTPUT
             fi
-          fi
-        done
+            
+            echo "${name}:${current}" >> new_versions.txt
+          }
+          
+          check_diff "adguard" "${{ steps.adguard.outputs.v || 'Fehler' }}"
+          check_diff "authelia" "${{ steps.authelia.outputs.v || 'Fehler' }}"
+          check_diff "beszel" "${{ steps.beszel.outputs.v || 'Fehler' }}"
+          check_diff "dockge" "${{ steps.dockge.outputs.v || 'Fehler' }}"
+          check_diff "filebrowser" "${{ steps.filebrowser.outputs.v || 'Fehler' }}"
+          check_diff "grafana" "${{ steps.grafana.outputs.v || 'Fehler' }}"
+          check_diff "homeassistant" "${{ steps.homeassistant.outputs.v || 'Fehler' }}"
+          check_diff "jellyfin" "${{ steps.jellyfin.outputs.v || 'Fehler' }}"
+          check_diff "mosquitto" "${{ steps.mosquitto.outputs.v || 'Fehler' }}"
+          check_diff "npm" "${{ steps.npm.outputs.v || 'Fehler' }}"
+          check_diff "ollama" "${{ steps.ollama.outputs.v || 'Fehler' }}"
+          check_diff "paperless" "${{ steps.paperless.outputs.v || 'Fehler' }}"
+          check_diff "prometheus" "${{ steps.prometheus.outputs.v || 'Fehler' }}"
+          check_diff "uptime" "${{ steps.uptime.outputs.v || 'Fehler' }}"
+          check_diff "vaultwarden" "${{ steps.vaultwarden.outputs.v || 'Fehler' }}"
+          
+          mv new_versions.txt old_versions.txt
 
-        # 3. Wenn Updates gefunden wurden, Nachricht senden
-        if [ "$UPDATES_FOUND" = true ]; then
-          curl -s -X POST "https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_CHAT_ID}" \
-            -d "text=${MESSAGE}" \
-            -d "parse_mode=Markdown"
-        fi
+      - name: Send Telegram Notification
+        uses: appleboy/telegram-action@v1.1.1
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
+          message: |
+            🔍 *Aktuelle Homelab Versionen:*
+            
+            ${{ secrets.ADGUARD_EMOJI || '🛡️' }} *AdGuard Home:* `${{ steps.adguard.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.adguard_text }}
+            🔒 *Authelia:* `${{ steps.authelia.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.authelia_text }}
+            📊 *Beszel:* `${{ steps.beszel.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.beszel_text }}
+            🐳 *Dockge:* `${{ steps.dockge.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.dockge_text }}
+            📊 *Grafana:* `${{ steps.grafana.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.grafana_text }}
+            🏠 *Home Assistant:* `${{ steps.homeassistant.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.homeassistant_text }}
+            🎬 *Jellyfin:* `${{ steps.jellyfin.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.jellyfin_text }}
+            🦟 *Mosquitto:* `${{ steps.mosquitto.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.mosquitto_text }}
+            🌐 *Nginx Proxy Manager:* `${{ steps.npm.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.npm_text }}
+            🧠 *Ollama:* `${{ steps.ollama.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.ollama_text }}
+            📄 *Paperless-ngx:* `${{ steps.paperless.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.paperless_text }}
+            🔥 *Prometheus:* `${{ steps.prometheus.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.prometheus_text }}
+            📂 *Quantumbrowser:* `${{ steps.filebrowser.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.filebrowser_text }}
+            📈 *Uptime-Kuma:* `${{ steps.uptime.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.uptime_text }}
+            🔑 *Vaultwarden:* `${{ steps.vaultwarden.outputs.v || 'Fehler' }}`${{ steps.compare.outputs.vaultwarden_text }}
+            
+            _Das System prüft alle 24 Stunden auf Updates._
 
-    - name: Commit and Push Changes
-      run: |
-        git config --local user.email "github-actions[bot]@://github.com"
-        git config --local user.name "github-actions[bot]"
-        git add old_versions.txt
-        if ! git diff --cached --quiet; then
-          git commit -m "chore: update tracked application versions [skip ci]"
-          git push
-        fi
+      - name: Save versions to repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add old_versions.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update stored versions [skip ci]" && git push)
