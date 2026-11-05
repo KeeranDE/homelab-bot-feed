@@ -4,7 +4,7 @@ beszel:v0.21.1
 dockge:1.5.0
 filebrowser:v2.1.4-beta
 grafana:v13.3.0
-homeassistant:2026.10.4
+homeassistant:2026.11.0
 jellyfin:v12.4
 mosquitto:v2.1.2
 npm:v2.16.0
