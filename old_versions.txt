@@ -3,7 +3,7 @@ authelia:v4.39.28
 beszel:v0.21.1
 dockge:1.5.0
 filebrowser:v2.1.4-beta
-grafana:v13.3.0
+grafana:v13.3.1
 homeassistant:2026.11.1
 jellyfin:v12.4
 mosquitto:v2.1.2
