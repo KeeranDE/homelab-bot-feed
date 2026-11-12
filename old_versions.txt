@@ -7,9 +7,9 @@ grafana:v13.3.1
 homeassistant:2026.11.1
 jellyfin:v12.4
 mosquitto:v2.1.2
-npm:v2.16.0
+npm:v2.17.0
 ollama:v0.40.16
 paperless:v3.4.2
 prometheus:v3.16.0
-uptime:2.5.9
+uptime:2.5.10
 vaultwarden:1.37.5
