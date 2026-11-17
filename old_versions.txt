@@ -4,12 +4,12 @@ beszel:v0.21.2
 dockge:1.5.0
 filebrowser:v2.1.5-beta
 grafana:v13.3.1
-homeassistant:2026.11.1
+homeassistant:2026.11.2
 jellyfin:v12.4
 mosquitto:v2.1.2
 npm:v2.17.0
 ollama:v0.40.16
-paperless:v3.4.2
+paperless:v3.5.0
 prometheus:v3.16.0
 uptime:2.5.11
 vaultwarden:1.37.5
