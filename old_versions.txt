@@ -6,10 +6,10 @@ filebrowser:v2.1.5-beta
 grafana:v13.3.1
 homeassistant:2026.11.2
 jellyfin:v12.4
-mosquitto:v2.1.2
+mosquitto:v2.1.4
 npm:v2.17.0
 ollama:v0.40.16
-paperless:v3.5.0
+paperless:v3.5.1
 prometheus:v3.16.0
-uptime:2.5.11
+uptime:2.5.12
 vaultwarden:1.37.5
