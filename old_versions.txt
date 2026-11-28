@@ -8,7 +8,7 @@ homeassistant:2026.11.3
 jellyfin:v12.4
 mosquitto:v2.1.4
 npm:v2.17.1
-ollama:v0.40.18
+ollama:v0.40.19
 paperless:v3.5.1
 prometheus:v3.16.0
 uptime:2.5.12
